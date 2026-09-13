@@ -19,10 +19,10 @@
 -- =========================================================================
 -- 0. ОЧИСТКА ПЕРЕД ТЕСТОМ
 -- =========================================================================
-TRUNCATE table_taxes_history   RESTART IDENTITY CASCADE;
-TRUNCATE table_income_history  RESTART IDENTITY CASCADE;
+TRUNCATE table_taxes_history RESTART IDENTITY CASCADE;
+TRUNCATE table_income_history RESTART IDENTITY CASCADE;
 TRUNCATE table_taxes;
-TRUNCATE table_income          RESTART IDENTITY CASCADE;
+TRUNCATE table_income RESTART IDENTITY CASCADE;
 
 
 -- =========================================================================
@@ -53,7 +53,9 @@ VALUES ('2024-01-25', 'ФЛ', 500, TRUE);
 INSERT INTO table_income (date, person_type, income)
 VALUES ('2024-02-10', 'ЮЛ', 3000);
 
-SELECT * FROM table_taxes ORDER BY year, month;
+SELECT *
+FROM table_taxes
+ORDER BY year, month;
 -- Ожидаемый результат:
 --   year | month |  tax
 --   2024 |   1   | 160.00
@@ -68,9 +70,13 @@ SELECT * FROM table_taxes ORDER BY year, month;
 --      Ставка физического лица = 4 процента.
 --      Было начислено 40.00, стало 80.00, разница +40.00.
 --      Итого за январь 2024: 160.00 + 40.00 = 200.00.
-UPDATE table_income SET income = 2000 WHERE id = 1;
+UPDATE table_income
+SET income = 2000
+WHERE id = 1;
 
-SELECT * FROM table_taxes ORDER BY year, month;
+SELECT *
+FROM table_taxes
+ORDER BY year, month;
 -- Ожидаемый результат:
 --   2024 | 1 | 200.00
 --   2024 | 2 | 180.00
@@ -84,9 +90,13 @@ SELECT * FROM table_taxes ORDER BY year, month;
 --      устанавливаем признак удаления в значение ИСТИНА.
 --      Ставка юридического лица = 6 процентов, начисленный налог 120.00.
 --      Вычитаем: январь 2024, 200.00 - 120.00 = 80.00.
-UPDATE table_income SET is_deleted = TRUE WHERE id = 2;
+UPDATE table_income
+SET is_deleted = TRUE
+WHERE id = 2;
 
-SELECT * FROM table_taxes ORDER BY year, month;
+SELECT *
+FROM table_taxes
+ORDER BY year, month;
 -- Ожидаемый результат:
 --   2024 | 1 |  80.00
 --   2024 | 2 | 180.00
@@ -94,9 +104,13 @@ SELECT * FROM table_taxes ORDER BY year, month;
 -- 3.2. Восстанавливаем запись с идентификатором 2: признак удаления = ЛОЖЬ.
 --      Снова начисляем 6 процентов от 2000 = 120.00.
 --      Январь 2024: 80.00 + 120.00 = 200.00.
-UPDATE table_income SET is_deleted = FALSE WHERE id = 2;
+UPDATE table_income
+SET is_deleted = FALSE
+WHERE id = 2;
 
-SELECT * FROM table_taxes ORDER BY year, month;
+SELECT *
+FROM table_taxes
+ORDER BY year, month;
 -- Ожидаемый результат:
 --   2024 | 1 | 200.00
 --   2024 | 2 | 180.00
@@ -110,9 +124,13 @@ SELECT * FROM table_taxes ORDER BY year, month;
 --      с юридического на физическое. Доход остаётся 2000.
 --      Было 6 процентов = 120.00, стало 4 процента = 80.00, разница -40.00.
 --      Январь 2024: 200.00 - 40.00 = 160.00.
-UPDATE table_income SET person_type = 'ФЛ' WHERE id = 2;
+UPDATE table_income
+SET person_type = 'ФЛ'
+WHERE id = 2;
 
-SELECT * FROM table_taxes ORDER BY year, month;
+SELECT *
+FROM table_taxes
+ORDER BY year, month;
 -- Ожидаемый результат:
 --   2024 | 1 | 160.00
 --   2024 | 2 | 180.00
@@ -128,9 +146,13 @@ SELECT * FROM table_taxes ORDER BY year, month;
 --      Январь 2024: 160.00 - 80.00 = 80.00.
 --      В март начисляем 80.00.
 --      Март 2024: 0.00 + 80.00 = 80.00.
-UPDATE table_income SET date = '2024-03-05' WHERE id = 2;
+UPDATE table_income
+SET date = '2024-03-05'
+WHERE id = 2;
 
-SELECT * FROM table_taxes ORDER BY year, month;
+SELECT *
+FROM table_taxes
+ORDER BY year, month;
 -- Ожидаемый результат:
 --   2024 | 1 |  80.00
 --   2024 | 2 | 180.00
@@ -146,9 +168,13 @@ SELECT * FROM table_taxes ORDER BY year, month;
 --      меняем дату на 1 апреля 2024.
 --      Запись помечена как удалённая, поэтому ни снятие, ни начисление
 --      налога происходить не должно.
-UPDATE table_income SET date = '2024-04-01' WHERE id = 3;
+UPDATE table_income
+SET date = '2024-04-01'
+WHERE id = 3;
 
-SELECT * FROM table_taxes ORDER BY year, month;
+SELECT *
+FROM table_taxes
+ORDER BY year, month;
 -- Ожидаемый результат (без изменений по сравнению с предыдущим шагом):
 --   2024 | 1 |  80.00
 --   2024 | 2 | 180.00
@@ -164,9 +190,13 @@ SELECT * FROM table_taxes ORDER BY year, month;
 --      устанавливаем признак удаления в значение ИСТИНА.
 --      Снимаем 4 процента от 2000 = 80.00.
 --      Январь 2024: 80.00 - 80.00 = 0.00.
-UPDATE table_income SET is_deleted = TRUE WHERE id = 1;
+UPDATE table_income
+SET is_deleted = TRUE
+WHERE id = 1;
 
-SELECT * FROM table_taxes ORDER BY year, month;
+SELECT *
+FROM table_taxes
+ORDER BY year, month;
 -- Ожидаемый результат:
 --   2024 | 1 |   0.00
 --   2024 | 2 | 180.00
@@ -179,7 +209,9 @@ SELECT * FROM table_taxes ORDER BY year, month;
 
 -- 8.1. Ожидается ошибка:
 --      "Удалять данные о доходах ЗАПРЕЩЕНО".
-DELETE FROM table_income WHERE id = 4;
+DELETE
+FROM table_income
+WHERE id = 4;
 -- ОШИБКА: Удалять данные о доходах ЗАПРЕЩЕНО
 
 
@@ -194,7 +226,9 @@ VALUES (CURRENT_DATE + INTERVAL '1 day', 'ФЛ', 100);
 -- ОШИБКА: Дата дохода не может быть в будущем: ...
 
 -- 9.2. Ожидается ошибка при попытке обновить дату дохода на будущую.
-UPDATE table_income SET date = CURRENT_DATE + INTERVAL '1 day' WHERE id = 4;
+UPDATE table_income
+SET date = CURRENT_DATE + INTERVAL '1 day'
+WHERE id = 4;
 -- ОШИБКА: Дата дохода не может быть в будущем: ...
 
 
@@ -203,10 +237,9 @@ UPDATE table_income SET date = CURRENT_DATE + INTERVAL '1 day' WHERE id = 4;
 -- =========================================================================
 
 -- 10.1. Пересчёт ожидаемой суммы налога по всем неудалённым записям о доходах.
-SELECT
-    EXTRACT(YEAR  FROM date)::INT  AS year,
-    EXTRACT(MONTH FROM date)::INT  AS month,
-    SUM(income * function_get_tax_rate(person_type, date)) AS expected_tax
+SELECT EXTRACT(YEAR FROM date)::INT                           AS year,
+       EXTRACT(MONTH FROM date)::INT                          AS month,
+       SUM(income * function_get_tax_rate(person_type, date)) AS expected_tax
 FROM table_income
 WHERE is_deleted = FALSE
 GROUP BY 1, 2
@@ -252,7 +285,8 @@ ORDER BY id;
 --   11) Обновление записи 1: is_deleted изменён с ЛОЖЬ на ИСТИНА
 
 -- 11.2. Общее количество записей в журнале изменений доходов.
-SELECT COUNT(*) AS income_history_rows FROM table_income_history;
+SELECT COUNT(*) AS income_history_rows
+FROM table_income_history;
 -- Ожидаемый результат: 11
 
 
@@ -285,7 +319,8 @@ ORDER BY id;
 --       (установка признака удаления в значение ИСТИНА)
 
 -- 12.2. Общее количество записей в журнале изменений налогов.
-SELECT COUNT(*) AS taxes_history_rows FROM table_taxes_history;
+SELECT COUNT(*) AS taxes_history_rows
+FROM table_taxes_history;
 -- Ожидаемый результат: 10
 
 
@@ -293,15 +328,16 @@ SELECT COUNT(*) AS taxes_history_rows FROM table_taxes_history;
 -- 13. КОМПАКТНЫЙ ТЕСТ: ОДНА ВСТАВКА НА ТЕКУЩУЮ ДАТУ
 -- =========================================================================
 
-TRUNCATE table_taxes_history   RESTART IDENTITY CASCADE;
-TRUNCATE table_income_history  RESTART IDENTITY CASCADE;
+TRUNCATE table_taxes_history RESTART IDENTITY CASCADE;
+TRUNCATE table_income_history RESTART IDENTITY CASCADE;
 TRUNCATE table_taxes;
-TRUNCATE table_income          RESTART IDENTITY CASCADE;
+TRUNCATE table_income RESTART IDENTITY CASCADE;
 
 INSERT INTO table_income (date, person_type, income)
 VALUES (CURRENT_DATE, 'ФЛ', 10000);
 
-SELECT * FROM table_taxes;
+SELECT *
+FROM table_taxes;
 -- Ожидаемый результат — одна строка:
 --   year  = EXTRACT(YEAR  FROM CURRENT_DATE)
 --   month = EXTRACT(MONTH FROM CURRENT_DATE)
